@@ -30,16 +30,12 @@ func equals(tb testing.TB, exp, act interface{}) {
 }
 
 func TempRoot(t testing.TB) string {
-	if runtime.GOOS == "darwin" {
-		// on macOS $TMPDIR cannot be used for `nix --store`
-		pwd, err := os.Getwd()
-		if err != nil {
-			ok(t, err)
-		}
-		return pwd
-	} else {
-		return os.TempDir()
-	}
+  root := os.TempDir()
+  root, err := filepath.EvalSymlinks(root)
+  if err != nil {
+    ok(t, err)
+  }
+  return root
 }
 
 func buildNixFile(t testing.TB, tempdir string, nixFile string, expectedBuilds int) int {
