@@ -29,6 +29,15 @@ func equals(tb testing.TB, exp, act interface{}) {
 	}
 }
 
+func TempRoot(t testing.TB) string {
+  root := os.TempDir()
+  root, err := filepath.EvalSymlinks(root)
+  if err != nil {
+    ok(t, err)
+  }
+  return root
+}
+
 func buildNixFile(t testing.TB, tempdir string, nixFile string, expectedBuilds int) int {
 	store := path.Join(tempdir, "store")
 	output := path.Join(tempdir, path.Base(nixFile))
@@ -47,7 +56,7 @@ func buildNixFile(t testing.TB, tempdir string, nixFile string, expectedBuilds i
 }
 
 func TestFoo(t *testing.T) {
-	tempdir, err := ioutil.TempDir("", "test")
+	tempdir, err := ioutil.TempDir(TempRoot(t), "test")
 	ok(t, err)
 	_, filename, _, _ := runtime.Caller(0)
 	asset := path.Join(path.Dir(filename), "test")
